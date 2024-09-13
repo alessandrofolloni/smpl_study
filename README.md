@@ -4,24 +4,16 @@ This repository contains the code for a comprehensive study on SMPL (and SMPLX) 
 
 ## Table of Contents
 
-- [Installation](#installation)
+- [Files](#files)
 - [Usage](#usage)
 - [Features](#features)
 - [Contributing](#contributing)
 - [License](#license)
 - [Contact](#contact)
 
-## Installation
+## Files
 
-Step-by-step instructions on how to get the development environment running.
+Step-by-step instructions about the utility of every file.
 
-```bash
-# Clone the repository
-git clone https://github.com/yourusername/your-repository.git
-
-# Navigate to the project directory
-cd your-repository
-
-# Install dependencies
-pip install -r requirements.txt
+### demo.py
 
