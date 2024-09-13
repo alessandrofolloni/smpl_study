@@ -1,9 +1,12 @@
-numpy==2.1.1
+numpy~=1.26.4
 opencv_python==4.8.1.78
 opencv_python==4.7.0.72
 opencv_python_headless==4.9.0.80
 pyrender==0.1.45
-torch==2.2.1
+torch~=2.2.2
 torch==2.2.2
-trimesh==4.4.9
-ultralytics==8.2.92
+trimesh~=4.4.3
+ultralytics~=8.2.64
+
+smplx~=0.1.27
+opencv-python~=4.10.0.84

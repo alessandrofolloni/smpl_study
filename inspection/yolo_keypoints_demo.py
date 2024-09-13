@@ -4,7 +4,7 @@ import json
 import numpy as np
 
 # Carica i parametri della camera dal file JSON
-with open('camera_params/band_pull_apart.json') as f:
+with open('../files/camera_params/band_pull_apart.json') as f:
     camera_params = json.load(f)
 
 intrinsics = camera_params['intrinsics_w_distortion']
@@ -26,7 +26,7 @@ def undistort_image(image, intrinsics):
     return undistorted_image
 
 
-model = YOLO('pretrained_yolos/YOLOv8 Pose.pt')
+model = YOLO('../files/pretrained_yolos/YOLOv8 Pose.pt')
 
 
 # Funzione per elaborare un batch di frame
@@ -41,7 +41,7 @@ def process_batch(frames, frame_indices, keypoints_list):
         })
 
 
-cap = cv2.VideoCapture('files/band_pull_apart.mp4')
+cap = cv2.VideoCapture('../files/video/band_pull_apart.mp4')
 
 keypoints_list = []
 batch_size = 4  # Numero di frame da processare in batch
@@ -73,11 +73,11 @@ if frames:
 cap.release()
 
 # Salva i keypoints in un file JSON
-with open('keypoint2s.json', 'w') as f:
+with open('results/yolo_keypoints.json', 'w') as f:
     json.dump(keypoints_list, f, indent=4)
 
-print("Keypoints saved to keypoints.json")
-with open('keypoints2.json', 'w') as f:
+print("Keypoints saved to yolo_keypoints.json")
+with open('results/yolo_keypoints.json', 'w') as f:
     json.dump(keypoints_list, f, indent=4)
 
-print("Keypoints saved to keypoints2.json")
+print("Keypoints saved to yolo_keypoints.json")

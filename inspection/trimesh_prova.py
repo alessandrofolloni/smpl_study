@@ -4,10 +4,14 @@ import torch
 import trimesh
 import numpy as np
 import smplx
+import os
 
-model_path = "body_models/SMPLX_NEUTRAL.npz"
+output_dir = 'results/body_poses_obj'  # Directory di output
+os.makedirs(output_dir, exist_ok=True)
 
-json_path = "files/band_pull_apart.json"
+model_path = "../files/body_models/SMPLX_NEUTRAL.npz"
+
+json_path = "../files/smplx/band_pull_apart.json"
 with open(json_path, 'r') as f:
     smplx_params = json.load(f)
 
@@ -41,7 +45,7 @@ for i in range(63):
     mesh = trimesh.Trimesh(vertices, faces)
 
     # Salva la mesh in un file .obj
-    mesh.export(f'body_poses/smplx_mesh_{i}.obj')
+    mesh.export(os.path.join(output_dir, f'smplx_mesh_{i}.obj'))
 
     scene = pyrender.Scene()
     mesh_pyrender = pyrender.Mesh.from_trimesh(mesh)
