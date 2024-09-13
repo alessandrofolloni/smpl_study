@@ -1,5 +1,9 @@
 ### Python template
 .DS_store
+/datasets/
+/files/smplx
+/files/video
+/files/body_models
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
