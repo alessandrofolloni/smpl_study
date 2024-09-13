@@ -40,16 +40,18 @@ Step-by-step instructions about the utility of every file.
   The given function creates the smplx_model object in python using the provided SMPLX body model.
 
   The comment section describes the parameters available in the JSON file and used by the SMPL-X model:
+  
   - Main Parameters:
-    transl: Translation of the model in 3D space.
-    global_orient: Global orientation of the model.
-    body_pose: Pose of the body (excluding hands, face).
-    betas: Shape parameters affecting body morphology.
+    - transl: Translation of the model in 3D space.
+    - global_orient: Global orientation of the model.
+    - body_pose: Pose of the body (excluding hands, face).
+    - betas: Shape parameters affecting body morphology.
+    
   - Additional Parameters:
-    left_hand_pose and right_hand_pose: Poses of the hands.
-    jaw_pose: Pose of the jaw.
-    leye_pose and reye_pose: Poses of the left and right eyes.
-    expression: Facial expression parameters.
+    - left_hand_pose and right_hand_pose: Poses of the hands.
+    - jaw_pose: Pose of the jaw.
+    - leye_pose and reye_pose: Poses of the left and right eyes.
+    - expression: Facial expression parameters.
 
   I load for effective visualization standard parameters into the smplx model then they are iteratively modified to understand the
   contribution of each one. For each parameter, it creates a modified 3D mesh and visualizes it using pyrender while also saving the mesh to
