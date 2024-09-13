@@ -4,6 +4,7 @@
 /files/smplx
 /files/video
 /files/body_models
+/files/pretrained_yolos
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
