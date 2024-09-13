@@ -15,5 +15,5 @@ This repository contains the code for a comprehensive study on SMPL (and SMPLX) 
 
 Step-by-step instructions about the utility of every file.
 
-### demo.py
+##### demo.py
 
