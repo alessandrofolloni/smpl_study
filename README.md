@@ -15,7 +15,7 @@ This repository contains the code for a comprehensive study on SMPL (and SMPLX) 
 
 Step-by-step instructions about the utility of every file.
 
-##### yolo_keypoints_demo.py 
+### yolo_keypoints_demo.py 
 From Fit3D dataset, I selected an exercise of a given subject as an example, in particular band_pull_apart.
 
 The camera parameters are read and divided between extrisics and intrisics.
