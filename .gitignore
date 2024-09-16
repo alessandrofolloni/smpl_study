@@ -1,13 +1,7 @@
 ### Python template
 .DS_store
 /datasets/
-/files/smplx
-/files/video
-/files/body_models
-/files/pretrained_yolos
-/inspection/results
-/inspection/inspection/results
-
+/files/
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
