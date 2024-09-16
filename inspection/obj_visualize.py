@@ -3,7 +3,7 @@ import pyrender
 import numpy as np
 
 # Path to your OBJ file
-obj_file = 'output_frame0.obj'
+obj_file = 'results/output_frame0000.obj'
 
 # Load the mesh using Trimesh
 trimesh_mesh = trimesh.load(obj_file)

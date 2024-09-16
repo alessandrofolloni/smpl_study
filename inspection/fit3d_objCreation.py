@@ -50,11 +50,11 @@ for frame_idx in range(num_frames):
     body_pose_mat = np.array(data['body_pose'][frame_idx])  # Shape: (21, 3, 3)
 
     # Uncomment the following lines if you wish to include hand and face poses
-    # left_hand_pose_mat = np.array(data['left_hand_pose'][frame_idx])  # Shape: (15, 3, 3)
-    # right_hand_pose_mat = np.array(data['right_hand_pose'][frame_idx])  # Shape: (15, 3, 3)
-    # jaw_pose_mat = np.array(data['jaw_pose'][frame_idx])  # Shape: (3, 3)
-    # leye_pose_mat = np.array(data['leye_pose'][frame_idx])  # Shape: (3, 3)
-    # reye_pose_mat = np.array(data['reye_pose'][frame_idx])  # Shape: (3, 3)
+    left_hand_pose_mat = np.array(data['left_hand_pose'][frame_idx])  # Shape: (15, 3, 3)
+    right_hand_pose_mat = np.array(data['right_hand_pose'][frame_idx])  # Shape: (15, 3, 3)
+    jaw_pose_mat = np.array(data['jaw_pose'][frame_idx])  # Shape: (3, 3)
+    leye_pose_mat = np.array(data['leye_pose'][frame_idx])  # Shape: (3, 3)
+    reye_pose_mat = np.array(data['reye_pose'][frame_idx])  # Shape: (3, 3)
 
     def rotation_matrices_to_axis_angles(rotation_matrices):
         """
@@ -70,12 +70,12 @@ for frame_idx in range(num_frames):
     # Convert rotation matrices to axis-angle
     global_orient_axis_angle = rotation_matrices_to_axis_angles(global_orient_mat)  # Shape: (3,)
     body_pose_axis_angle = rotation_matrices_to_axis_angles(body_pose_mat)  # Shape: (21, 3)
-    # Uncomment and convert hand and face poses if you wish to include them
-    # left_hand_pose_axis_angle = rotation_matrices_to_axis_angles(left_hand_pose_mat)  # Shape: (15, 3)
-    # right_hand_pose_axis_angle = rotation_matrices_to_axis_angles(right_hand_pose_mat)  # Shape: (15, 3)
-    # jaw_pose_axis_angle = rotation_matrices_to_axis_angles(jaw_pose_mat)  # Shape: (3,)
-    # leye_pose_axis_angle = rotation_matrices_to_axis_angles(leye_pose_mat)  # Shape: (3,)
-    # reye_pose_axis_angle = rotation_matrices_to_axis_angles(reye_pose_mat)  # Shape: (3,)
+
+    left_hand_pose_axis_angle = rotation_matrices_to_axis_angles(left_hand_pose_mat)  # Shape: (15, 3)
+    right_hand_pose_axis_angle = rotation_matrices_to_axis_angles(right_hand_pose_mat)  # Shape: (15, 3)
+    jaw_pose_axis_angle = rotation_matrices_to_axis_angles(jaw_pose_mat)  # Shape: (3,)
+    leye_pose_axis_angle = rotation_matrices_to_axis_angles(leye_pose_mat)  # Shape: (3,)
+    reye_pose_axis_angle = rotation_matrices_to_axis_angles(reye_pose_mat)  # Shape: (3,)
 
     # Convert parameters to tensors
     betas = torch.tensor(betas_np, dtype=torch.float32).unsqueeze(0).to(device)  # Shape: (1, 10)
@@ -86,19 +86,24 @@ for frame_idx in range(num_frames):
     body_pose = torch.tensor(body_pose_axis_angle.reshape(-1), dtype=torch.float32).unsqueeze(0).to(
         device)  # Shape: (1, 63)
 
-    # Uncomment and convert hand and face poses if you wish to include them
-    # left_hand_pose = torch.tensor(left_hand_pose_axis_angle.reshape(-1), dtype=torch.float32).unsqueeze(0).to(device)  # Shape: (1, 45)
-    # right_hand_pose = torch.tensor(right_hand_pose_axis_angle.reshape(-1), dtype=torch.float32).unsqueeze(0).to(device)  # Shape: (1, 45)
-    # jaw_pose = torch.tensor(jaw_pose_axis_angle, dtype=torch.float32).unsqueeze(0).to(device)  # Shape: (1, 3)
-    # leye_pose = torch.tensor(leye_pose_axis_angle, dtype=torch.float32).unsqueeze(0).to(device)  # Shape: (1, 3)
-    # reye_pose = torch.tensor(reye_pose_axis_angle, dtype=torch.float32).unsqueeze(0).to(device)  # Shape: (1, 3)
+    left_hand_pose = torch.tensor(left_hand_pose_axis_angle.reshape(-1), dtype=torch.float32).unsqueeze(0).to(device)  # Shape: (1, 45)
+    right_hand_pose = torch.tensor(right_hand_pose_axis_angle.reshape(-1), dtype=torch.float32).unsqueeze(0).to(device)  # Shape: (1, 45)
+    jaw_pose = torch.tensor(jaw_pose_axis_angle, dtype=torch.float32).unsqueeze(0).to(device)  # Shape: (1, 3)
+    leye_pose = torch.tensor(leye_pose_axis_angle, dtype=torch.float32).unsqueeze(0).to(device)  # Shape: (1, 3)
+    reye_pose = torch.tensor(reye_pose_axis_angle, dtype=torch.float32).unsqueeze(0).to(device)  # Shape: (1, 3)
 
+    # Generate the mesh
     with torch.no_grad():
         output = smplx_model(
             betas=betas,
             expression=expression,
             global_orient=global_orient,
             body_pose=body_pose,
+            left_hand_pose=left_hand_pose,
+            right_hand_pose=right_hand_pose,
+            jaw_pose=jaw_pose,
+            leye_pose=leye_pose,
+            reye_pose=reye_pose,
             transl=transl,
             return_verts=True
         )
@@ -111,5 +116,8 @@ for frame_idx in range(num_frames):
     mesh = trimesh.Trimesh(vertices, faces)
     mesh.export(output_mesh_file)
     print(f"Mesh saved to {output_mesh_file}")
+
+    if frame_idx == 3:
+        break
 
 print('All frames processed and saved.')
