@@ -117,7 +117,7 @@ for frame_idx in range(num_frames):
     mesh.export(output_mesh_file)
     print(f"Mesh saved to {output_mesh_file}")
 
-    if frame_idx == 3:
-        break
+    #if frame_idx == 3:
+        #break
 
 print('All frames processed and saved.')
