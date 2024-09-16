@@ -57,4 +57,21 @@ Step-by-step instructions about the utility of every file.
   contribution of each one. For each parameter, it creates a modified 3D mesh and visualizes it using pyrender while also saving the mesh to
   an .obj file.
   
+- ### visualize.ipynb
+  This Python script is designed to read and process data from the FIT3D dataset.
+  - Details:
+    - dataset_name: Specifies the name of the dataset, in this case, “FIT3D”.
+	- data_root: Root directory where the dataset is located.
+	-	subset: Specifies the subset of the dataset, such as ‘train’ or ‘test’.
+	-	subj_name: Subject identifier in the dataset (s03 in this case).
+	-	action_name: Name of the action to be processed (band_pull_apart in this case).
+	-	camera_name: Identifier of the camera view to be processed; different cameras may capture different perspectives of the same action.
+	-	subject: Specifies the type of data; here, it indicates that the data includes markers (w_markers).
   
+  - read_video(vid_path):
+  This function reads a video file frame by frame and converts each frame from BGR (default in OpenCV) to RGB format (common in image processing libraries). The function:
+    - Opens the video file specified by vid_path.
+    - Reads frames in a loop until the end of the video.
+    - Converts frames to RGB format and stores them in a list.
+    - Closes the video file and returns the list of frames as a NumPy array.
+

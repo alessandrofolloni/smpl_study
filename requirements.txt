@@ -10,3 +10,4 @@ ultralytics~=8.2.64
 
 smplx~=0.1.27
 opencv-python~=4.10.0.84
+scipy~=1.13.1
