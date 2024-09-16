@@ -5,6 +5,7 @@
 /files/video
 /files/body_models
 /files/pretrained_yolos
+/inspection/results
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
