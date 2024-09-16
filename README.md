@@ -5,11 +5,7 @@ This repository contains the code for a comprehensive study on SMPL (and SMPLX) 
 ## Table of Contents
 
 - [Files](#files)
-- [Usage](#usage)
-- [Features](#features)
-- [Contributing](#contributing)
-- [License](#license)
-- [Contact](#contact)
+
 
 ## Files
 
