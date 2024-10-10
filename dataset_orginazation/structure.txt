@@ -1,0 +1,22 @@
+/Users/alessandrofolloni/Google Drive/My Drive/FIT3D_post ==== PATH FOR DATASET
+├── sample_0001/
+│   ├── view_1.jpg
+│   ├── view_2.jpg
+│   ├── view_3.jpg
+│   ├── view_4.jpg
+│   ├── smplx_params.json
+├── sample_0002/
+│   ├── view_1.jpg
+│   ├── view_2.jpg
+│   ├── view_3.jpg
+│   ├── view_4.jpg
+│   ├── smplx_params.json
+├── sample_0003/
+│   ├── view_1.jpg
+│   ├── view_2.jpg
+│   ├── view_3.jpg
+│   ├── view_4.jpg
+│   ├── smplx_params.json
+├── ...
+
+FIT3D dataset: test has no GT so we can't use it

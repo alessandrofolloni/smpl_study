@@ -51,3 +51,18 @@ Step-by-step instructions about the utility of every file.
   
 
 
+- ### image_encoder.py:
+    Contains the ImageEncoder class, which uses a pre-trained ResNet50 model to extract features from images.
+
+- ### smplx_regressor.py:
+    Contains the SMPLXRegressor class, which takes the concatenated features and outputs the SMPL-X parameters.
+
+- ### multiview_smplx_model.py:
+    Combines the encoders and the regressor into the MultiviewSMPLXModel class. 
+    Processes each view with its encoder and concatenates the features.
+
+- ### train.py: 
+  - Contains the main training script. 
+  - Defines a custom dataset class MultiviewDataset that loads images and SMPL-X parameters. 
+  - The smplx_params_to_tensor function converts the SMPL-X parameters from the JSON file into a flat tensor of size 188. 
+  - The rotation_matrix_to_rotvec function converts rotation matrices to rotation vectors using OpenCV’s Rodrigues function.

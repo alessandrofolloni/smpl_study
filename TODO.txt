@@ -1,0 +1,15 @@
+git clone https://github.com/zju3dv/EasyMocap.git
+
+FOR VENV --------------------
+cd EasyMocap
+python3 -m venv venv
+source venv/bin/activate  # On macOS/Linux
+
+pip install -r requirements.txt
+pip install opencv-python
+
+PUT SMPLX MODEL INTO THE DIRECTORY
+EasyMocap/data/body_models/smplx
+
+cd /Users/alessandrofolloni/PycharmProjects/smpl_study/EasyMocap
+pip install -e .

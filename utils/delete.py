@@ -2,7 +2,7 @@ import os
 import glob
 
 # Specify the directory containing the files to delete
-output_dir = '/Users/alessandrofolloni/PycharmProjects/smpl_study/inspection/inspection/results/body_poses_obj'
+output_dir = '/Users/alessandrofolloni/PycharmProjects/smpl_study/datasets/post_FIT3D'
 
 # Get the list of all files in the directory
 files = glob.glob(os.path.join(output_dir, '*'))
