@@ -96,13 +96,32 @@ def load_joints3d(file_path):
 
     return joints3d, num_frames
 
-def create_mega_dict(dataset_dir, camera_ids):
+def compute_frame_difference_3d(current_joints3d, reference_joints3d):
+    """
+    Computes the total Euclidean distance between current and reference frames over all 3D joints.
+
+    Args:
+        current_joints3d (list): Current frame's joints3d data [[x, y, z], ...]
+        reference_joints3d (list): Reference frame's joints3d data [[x, y, z], ...]
+
+    Returns:
+        float: Total Euclidean distance
+    """
+    current_joints = np.array(current_joints3d)  # Shape: (25, 3)
+    reference_joints = np.array(reference_joints3d)  # Shape: (25, 3)
+    diff = np.linalg.norm(current_joints - reference_joints, axis=1)  # Shape: (25,)
+    total_diff = np.sum(diff)
+    return total_diff
+
+def create_mega_dict(dataset_dir, camera_ids, threshold):
     """
     Creates a mega_dict.json based on aligned frames where all cameras and 3D data are available.
+    Includes only frames that differ significantly from the last included frame based on 3D joints.
 
     Args:
         dataset_dir (str): Path to the main Dataset directory.
         camera_ids (list): List of camera identifiers.
+        threshold (float): Threshold for frame difference.
 
     Returns:
         dict: The constructed mega_dict.
@@ -152,79 +171,76 @@ def create_mega_dict(dataset_dir, camera_ids):
 
             print(f"Loaded and structured 2D joints for {exercise_key}: {num_frames_2d} frames")
 
+            # Filter frames based on difference
+            filtered_joints2d = {}
+            filtered_joints3d = {}
+            reference_joints3d = None
+            frame_keys = sorted(joints3d.keys(), key=lambda x: int(x.split('_')[1]))
+
+            # Initialize list to store differences for analysis
+            all_differences = []
+
+            for frame_key in frame_keys:
+                current_joints2d = joints2d[frame_key]  # Dict of camera_id -> joints
+                current_joints3d = joints3d[frame_key]  # List of 3D joints
+
+                include_frame = False
+                if reference_joints3d is None:
+                    # First frame, include it
+                    include_frame = True
+                else:
+                    # Compute difference between current and reference frames
+                    diff = compute_frame_difference_3d(current_joints3d, reference_joints3d)
+                    all_differences.append(diff)
+                    if diff >= threshold:
+                        include_frame = True
+
+                if include_frame:
+                    filtered_joints2d[frame_key] = current_joints2d
+                    filtered_joints3d[frame_key] = current_joints3d
+                    reference_joints3d = current_joints3d  # Update reference frame
+
+            # Check if any frames are included
+            if not filtered_joints2d:
+                print(f"No frames passed the threshold for {exercise_key}. Skipping exercise.")
+                continue
+
             # Initialize dictionary for this subject_video
             mega_dict[exercise_key] = {
-                "joints2d": joints2d,
-                "gt": joints3d
+                "joints2d": filtered_joints2d,
+                "gt": filtered_joints3d
             }
 
+            # Optional: Analyze differences and print statistics
+            if all_differences:
+                mean_diff = np.mean(all_differences)
+                std_diff = np.std(all_differences)
+                print(f"Statistics for {exercise_key}: Mean difference = {mean_diff:.4f}, Std Dev = {std_diff:.4f}")
+
     return mega_dict
-
-def print_first_element(mega_dict):
-    """
-    Prints the first element of the mega_dict in a readable format.
-
-    Args:
-        mega_dict (dict): The mega_dict containing all subject_videos.
-    """
-    if not mega_dict:
-        print("mega_dict is empty.")
-        return
-
-    # Retrieve the first key-value pair
-    first_key = next(iter(mega_dict))
-    first_value = mega_dict[first_key]
-
-    print(f"--- First Subject_Video: {first_key} ---\n")
-
-    # Print joints2d data
-    print("joints2d:")
-    joints2d = first_value.get("joints2d", {})
-    if joints2d:
-        for frame_key, cameras in list(joints2d.items())[:1]:  # Print only the first frame for brevity
-            print(f"  {frame_key}:")
-            for cam_id, joints in cameras.items():
-                print(f"    {cam_id}:")
-                for joint_idx, joint_coords in enumerate(joints, 1):
-                    print(f"      Joint {joint_idx}: {joint_coords}")
-    else:
-        print("  No joints2d data available.")
-
-    # Print gt (joints3d) data
-    print("\ngt:")
-    joints3d = first_value.get("gt", {})
-    if joints3d:
-        for frame_key, joints in list(joints3d.items())[:1]:  # Print only the first frame for brevity
-            print(f"  {frame_key}:")
-            for joint_idx, joint_coords in enumerate(joints, 1):
-                print(f"    Joint {joint_idx}: {joint_coords}")
-    else:
-        print("  No gt data available.")
 
 def main():
     dataset_directory = '/public.hpc/alessandro.folloni2/smpl_study/datasets/FIT3D/train/'  # Adjust to your actual path
     camera_ids = ['50591643', '58860488', '60457274', '65906101']
+    threshold = 0.3  # Adjust this threshold based on experimentation
 
-    # Create the mega_dict
+    # Create the mega_dict with frame filtering
     mega_dictionary = create_mega_dict(
         dataset_dir=dataset_directory,
-        camera_ids=camera_ids
+        camera_ids=camera_ids,
+        threshold=threshold
     )
 
     # Define the output path
-    output_json_path = os.path.join(dataset_directory, 'mega_dict.json')  # Adjust as needed
+    output_json_path = os.path.join(dataset_directory, 'mega_dict_filtered.json')  # Adjust as needed
 
     # Save the mega_dict as JSON
     try:
         with open(output_json_path, 'w') as json_file:
             json.dump(mega_dictionary, json_file, indent=4)
-        print(f"mega_dict.json has been saved to {output_json_path}")
+        print(f"mega_dict_filtered_3d.json has been saved to {output_json_path}")
     except Exception as e:
-        print(f"Error saving mega_dict.json: {e}")
-
-    # Print the first element of mega_dict
-    print("\n--- Inspecting the First Element of mega_dict ---\n")
-    print_first_element(mega_dictionary)
+        print(f"Error saving mega_dict_filtered_3d.json: {e}")
 
 if __name__ == "__main__":
     main()
