@@ -68,7 +68,7 @@ def process_dataset_videos(dataset_root):
                     verbose=False
                 )
 
-                # Loop over results for each frame
+                # Loop over results_obj for each frame
                 for result in tqdm(results, desc=f"Extracting keypoints from {video_file}"):
                     frame_keypoints = []
 

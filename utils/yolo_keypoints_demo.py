@@ -73,11 +73,11 @@ if frames:
 cap.release()
 
 # Salva i keypoints in un file JSON
-with open('results/yolo_keypoints.json', 'w') as f:
+with open('results_obj/yolo_keypoints.json', 'w') as f:
     json.dump(keypoints_list, f, indent=4)
 
 print("Keypoints saved to yolo_keypoints.json")
-with open('results/yolo_keypoints.json', 'w') as f:
+with open('results_obj/yolo_keypoints.json', 'w') as f:
     json.dump(keypoints_list, f, indent=4)
 
 print("Keypoints saved to yolo_keypoints.json")

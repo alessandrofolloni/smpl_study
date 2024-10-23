@@ -43,5 +43,5 @@ def detailed_inspect_with_shape(data_dict):
         inspect_shape(value)
 
 
-# Detailed inspection of joints3d_data with shapes
+# Detailed smplx_usage of joints3d_data with shapes
 detailed_inspect_with_shape(joints3d_data)

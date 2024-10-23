@@ -124,7 +124,7 @@ titles = [
     cameras[3] + ": " + exercise
 ]
 
-save_path = "/Users/alessandrofolloni/PycharmProjects/smpl_study/inspection/presentation/input.png"
+save_path = "/Users/alessandrofolloni/PycharmProjects/smpl_study/smplx_usage/presentation/input.png"
 
 visualize_frames(first_frames, titles=titles, figsize=(20, 10), save_path=save_path, display=False)
 
@@ -136,7 +136,7 @@ visualize_frames(first_frames, titles=titles, figsize=(20, 10), save_path=save_p
 json_file_path = ('/Users/alessandrofolloni/PycharmProjects/smpl_study/datasets/FIT3D'
                   '/train/s03/smplx/band_pull_apart.json')
 model_folder = '/Users/alessandrofolloni/PycharmProjects/smpl_study/files/body_models/SMPLX_NEUTRAL.npz'
-output_dir = '/Users/alessandrofolloni/PycharmProjects/smpl_study/inspection/presentation'
+output_dir = '/Users/alessandrofolloni/PycharmProjects/smpl_study/smplx_usage/presentation'
 
 file_path = Path(json_file_path)
 out = Path(output_dir)
@@ -160,7 +160,7 @@ print(f"Processed mesh saved at: {output_mesh_path}")
 
 visualizer = SMPLX_Visualizer(obj_file=output_mesh_path)
 
-output_dir = "/Users/alessandrofolloni/PycharmProjects/smpl_study/inspection/presentation"
+output_dir = "/Users/alessandrofolloni/PycharmProjects/smpl_study/smplx_usage/presentation"
 # Optionally, save a rendered image without displaying
 save_plot_path = os.path.join(output_dir, "mesh_render" + str(frame_idx) + ".png")
 visualizer.save_visualization(save_plot_path, resolution=(800, 600))

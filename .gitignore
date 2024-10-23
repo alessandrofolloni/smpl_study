@@ -1,7 +1,7 @@
 ### Python template
 .DS_store
 /datasets/
-/utils/inspection/files
+/smplx_usage/files
 /pretrained_yolos
 
 # Byte-compiled / optimized / DLL files

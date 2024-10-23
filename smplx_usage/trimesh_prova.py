@@ -6,7 +6,7 @@ import numpy as np
 import smplx
 import os
 
-output_dir = 'results/body_poses_obj'  # Directory di output
+output_dir = 'results_obj/body_poses_obj'  # Directory di output
 os.makedirs(output_dir, exist_ok=True)
 
 model_path = "../files/body_models/SMPLX_NEUTRAL.npz"
@@ -21,7 +21,7 @@ smplx_model = smplx.create(model_path, model_type='smplx',
                            ext='npz')
 
 '''
-In 3DFit dataset, after my inspection, I found out that the json has these parameters:
+In 3DFit dataset, after my smplx_usage, I found out that the json has these parameters:
 - transl, global_orient, body_pose, betas
 - left_hand_pose, right_hand_pose, jaw_pose, leye_pose, reye_pose, expression
 
