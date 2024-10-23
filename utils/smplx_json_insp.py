@@ -109,7 +109,7 @@ def save_first_frame(json_file, output_file):
 inspect_json_file(json_file_path)
 
 # Specify the output file path for the first frame data
-output_file_path = 'first_frame_data.json'
+output_file_path = 'first_frame_smplx.json'
 
 # Call the function to save the first frame parameters
 save_first_frame(json_file_path, output_file_path)
