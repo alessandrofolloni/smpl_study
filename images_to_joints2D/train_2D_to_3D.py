@@ -8,6 +8,7 @@ import wandb
 import matplotlib
 matplotlib.use('Agg')  # Use a non-interactive backend
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 
 # Configuration for hyperparameters
 config = {
@@ -20,10 +21,10 @@ config = {
     'train_split': 0.7,
     'val_split': 0.2,
     'test_split': 0.1,
-    'model_name': 'CNN',  # 'FCNN', 'CNN', 'RNN'
-    'hidden_sizes': [1024, 512, 256, 128, 64],  # For FCNN
+    'model_name': 'FCNN',  # 'FCNN', 'CNN', 'RNN'
+    'hidden_sizes': [2048, 1024, 512, 256, 128, 64],  # For FCNN
     'dropout': 0.3,
-    'cnn_extra_layers': [32, 64, 128, 256, 512],
+    'cnn_extra_layers': [32, 64, 128, 256, 512, 1024],
 }
 
 wandb.init(
@@ -35,13 +36,14 @@ wandb.config.update(config)
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-# Plotting Function
-def plot_3d_joints(joints, exercise_key, frame_idx, output_dir='3d_plots', save=True, return_figure=False):
+# Plotting Function to plot both predicted and ground truth joints
+def plot_pred_and_gt_joints(pred_joints, gt_joints, exercise_key, frame_idx, output_dir='3d_plots', save=True, return_figure=False):
     """
-    Plot 3D joints and save the plot to the specified directory with exercise key and frame number.
+    Plot both predicted and ground truth 3D joints in the same plot.
 
     Parameters:
-        joints (np.ndarray): A 25x3 array containing the 3D coordinates of joints.
+        pred_joints (np.ndarray): A 25x3 array containing the predicted 3D coordinates of joints.
+        gt_joints (np.ndarray): A 25x3 array containing the ground truth 3D coordinates of joints.
         exercise_key (str): A string identifier for the exercise (used in filename).
         frame_idx (int): The frame index to use in the output filename.
         output_dir (str): The directory to save the output plot (default is '3d_plots').
@@ -54,65 +56,75 @@ def plot_3d_joints(joints, exercise_key, frame_idx, output_dir='3d_plots', save=
     # Create the output directory if it doesn't exist
     os.makedirs(output_dir, exist_ok=True)
 
-    if joints.shape != (25, 3):
-        raise ValueError(f"Expected shape (25, 3) for joints, but got {joints.shape}")
+    if pred_joints.shape != (25, 3):
+        raise ValueError(f"Expected shape (25, 3) for pred_joints, but got {pred_joints.shape}")
+    if gt_joints.shape != (25, 3):
+        raise ValueError(f"Expected shape (25, 3) for gt_joints, but got {gt_joints.shape}")
 
-    x = joints[:, 0]
-    y = joints[:, 1]
-    z = joints[:, 2]
+    # Extract coordinates
+    x_pred, y_pred, z_pred = pred_joints[:, 0], pred_joints[:, 1], pred_joints[:, 2]
+    x_gt, y_gt, z_gt = gt_joints[:, 0], gt_joints[:, 1], gt_joints[:, 2]
 
     # Create a 3D plot
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
 
-    # Plot the joints
-    ax.scatter(x, y, z, c='r', marker='o')
+    # Plot the predicted joints
+    ax.scatter(x_pred, y_pred, z_pred, c='r', marker='o', label='Predicted')
 
-    # Define the connections between joints based on the updated joint mapping
+    # Plot the ground truth joints
+    ax.scatter(x_gt, y_gt, z_gt, c='g', marker='^', label='Ground Truth')
+
+    # Define the connections between joints based on the joint mapping
     connections = [
         # Head and Face
         (10, 9),  # Head to Nose
-        (9, 8),  # Nose to Neck
+        (9, 8),   # Nose to Neck
 
         # Torso
-        (8, 7),  # Neck to Stomach
-        (7, 0),  # Stomach to Central Hip
-        (0, 1),  # Central Hip to Left Hip
-        (0, 4),  # Central Hip to Right Hip
+        (8, 7),   # Neck to Stomach
+        (7, 0),   # Stomach to Central Hip
+        (0, 1),   # Central Hip to Left Hip
+        (0, 4),   # Central Hip to Right Hip
 
         # Right Arm
         (8, 14), (14, 15), (15, 16),  # Neck to Right Shoulder to Right Elbow to Right Wrist
-        (16, 23), (16, 24),  # Right Wrist to Right Palm and Fingers
+        (16, 23), (16, 24),           # Right Wrist to Right Palm and Fingers
 
         # Left Arm
         (8, 11), (11, 12), (12, 13),  # Neck to Left Shoulder to Left Elbow to Left Wrist
-        (13, 21), (13, 22),  # Left Wrist to Left Palm and Fingers
+        (13, 21), (13, 22),           # Left Wrist to Left Palm and Fingers
 
         # Right Leg
         (4, 5), (5, 6), (6, 19), (6, 20),  # Right Hip to Right Knee to Right Ankle to Right Toe
 
         # Left Leg
-        (1, 2), (2, 3), (3, 17), (3, 18)  # Left Hip to Left Knee to Left Ankle to Left Toe
+        (1, 2), (2, 3), (3, 17), (3, 18)   # Left Hip to Left Knee to Left Ankle to Left Toe
     ]
 
-    # Plot the lines connecting the joints
+    # Plot the lines connecting the joints for predicted joints
     for idx1, idx2 in connections:
         ax.plot(
-            [x[idx1], x[idx2]],
-            [y[idx1], y[idx2]],
-            [z[idx1], z[idx2]],
-            c='b'
+            [x_pred[idx1], x_pred[idx2]],
+            [y_pred[idx1], y_pred[idx2]],
+            [z_pred[idx1], z_pred[idx2]],
+            c='r'
         )
 
-    # Annotate each joint with its index number
-    for i in range(len(x)):
-        ax.text(x[i], y[i], z[i], f'{i}', size=10, zorder=1, color='k')
+    # Plot the lines connecting the joints for ground truth joints
+    for idx1, idx2 in connections:
+        ax.plot(
+            [x_gt[idx1], x_gt[idx2]],
+            [y_gt[idx1], y_gt[idx2]],
+            [z_gt[idx1], z_gt[idx2]],
+            c='g'
+        )
 
     # Set equal axis scaling for better visualization
-    max_range = np.array([x.max() - x.min(), y.max() - y.min(), z.max() - z.min()]).max() / 2.0
-    mid_x = (x.max() + x.min()) * 0.5
-    mid_y = (y.max() + y.min()) * 0.5
-    mid_z = (z.max() + z.min()) * 0.5
+    max_range = np.array([x_gt.max() - x_gt.min(), y_gt.max() - y_gt.min(), z_gt.max() - z_gt.min()]).max() / 2.0
+    mid_x = (x_gt.max() + x_gt.min()) * 0.5
+    mid_y = (y_gt.max() + y_gt.min()) * 0.5
+    mid_z = (z_gt.max() + z_gt.min()) * 0.5
     ax.set_xlim(mid_x - max_range, mid_x + max_range)
     ax.set_ylim(mid_y - max_range, mid_y + max_range)
     ax.set_zlim(mid_z - max_range, mid_z + max_range)
@@ -123,13 +135,16 @@ def plot_3d_joints(joints, exercise_key, frame_idx, output_dir='3d_plots', save=
     ax.set_zlabel('Z')
     ax.view_init(elev=20., azim=60)  # Adjust viewing angle for better understanding
 
+    # Add a legend
+    ax.legend()
+
     # Improve layout
     plt.tight_layout()
 
     if save:
-        output_path = os.path.join(output_dir, f'{exercise_key}_frame_{frame_idx}.jpg')
+        output_path = os.path.join(output_dir, f'{exercise_key}_frame_{frame_idx}_comparison.jpg')
         plt.savefig(output_path, format='jpg')
-        print(f"Saved {exercise_key} frame {frame_idx}")
+        print(f"Saved comparison plot for {exercise_key} frame {frame_idx}")
 
     # Return the figure for Wandb logging if required
     if return_figure:
@@ -183,7 +198,7 @@ class JointsDataset(Dataset):
             joints2d_array = joints2d_array.reshape(len(self.camera_ids), -1)  # Shape: [num_cameras, num_joints_2d*2]
             joints2d_tensor = torch.tensor(joints2d_array, dtype=torch.float32)
         else:
-            # For FCNN and GNN
+            # For FCNN
             joints2d_array = np.array(joints2d_list).flatten()
             joints2d_tensor = torch.tensor(joints2d_array, dtype=torch.float32)
 
@@ -242,7 +257,6 @@ class CNNModel(nn.Module):
         x = self.fc_layers(x)
         return x
 
-
 # Recurrent Neural Network (RNN)
 class RNNModel(nn.Module):
     def __init__(self, input_size, hidden_size, num_layers, output_size, dropout):
@@ -274,9 +288,7 @@ def train(model, loader, criterion, optimizer):
     running_loss = 0.0
     running_mpjpe = 0.0
     for batch in loader:
-        inputs = batch[0]
-        targets = batch[1]
-        # Ignore extra values
+        inputs, targets, _, _ = batch  # Unpack all returned values
         inputs = inputs.to(device)
         targets = targets.to(device)
         optimizer.zero_grad()
@@ -299,7 +311,8 @@ def validate(model, loader, criterion):
     max_images = 5  # Number of samples to plot
     image_count = 0
     with torch.no_grad():
-        for inputs, targets, exercise_keys, frame_idxs in loader:
+        for batch in loader:
+            inputs, targets, exercise_keys, frame_idxs = batch
             inputs = inputs.to(device)
             targets = targets.to(device)
             outputs = model(inputs)
@@ -319,19 +332,13 @@ def validate(model, loader, criterion):
                 exercise_key = exercise_keys[i]
                 frame_idx = frame_idxs[i]
 
-                # Plot predicted joints and save to folder
-                fig_pred = plot_3d_joints(pred_joints, exercise_key, frame_idx, save=True, return_figure=True)
-                pred_image = wandb.Image(fig_pred, caption=f"Predicted {exercise_key} frame {frame_idx}")
-                plt.close(fig_pred)  # Ensure the figure is closed
-
-                # Plot ground truth joints and save to folder
-                fig_gt = plot_3d_joints(gt_joints, exercise_key, frame_idx, save=True, return_figure=True)
-                gt_image = wandb.Image(fig_gt, caption=f"Ground Truth {exercise_key} frame {frame_idx}")
-                plt.close(fig_gt)  # Ensure the figure is closed
+                # Plot both predicted and ground truth joints and save to folder
+                fig_comparison = plot_pred_and_gt_joints(pred_joints, gt_joints, exercise_key, frame_idx, save=True, return_figure=True)
+                comparison_image = wandb.Image(fig_comparison, caption=f"Comparison {exercise_key} frame {frame_idx}")
+                plt.close(fig_comparison)  # Ensure the figure is closed
 
                 images.append({
-                    "Predicted": pred_image,
-                    "Ground Truth": gt_image,
+                    "Comparison": comparison_image,
                     "exercise_key": exercise_key,
                     "frame_idx": frame_idx
                 })
@@ -346,8 +353,7 @@ def validate(model, loader, criterion):
             exercise_key = img_dict['exercise_key']
             frame_idx = img_dict['frame_idx']
             wandb.log({
-                f"Validation/{exercise_key}/frame_{frame_idx}/Predicted": img_dict["Predicted"],
-                f"Validation/{exercise_key}/frame_{frame_idx}/Ground Truth": img_dict["Ground Truth"]
+                f"Validation/{exercise_key}/frame_{frame_idx}/Comparison": img_dict["Comparison"],
             })
 
     epoch_loss = running_loss / len(loader.dataset)
@@ -362,7 +368,8 @@ def test(model, loader, criterion):
     max_images = 5  # Number of samples to plot
     image_count = 0
     with torch.no_grad():
-        for inputs, targets, exercise_keys, frame_idxs in loader:
+        for batch in loader:
+            inputs, targets, exercise_keys, frame_idxs = batch
             inputs = inputs.to(device)
             targets = targets.to(device)
             outputs = model(inputs)
@@ -382,19 +389,13 @@ def test(model, loader, criterion):
                 exercise_key = exercise_keys[i]
                 frame_idx = frame_idxs[i]
 
-                # Plot predicted joints and save to folder
-                fig_pred = plot_3d_joints(pred_joints, exercise_key, frame_idx, save=True, return_figure=True)
-                pred_image = wandb.Image(fig_pred, caption=f"Predicted {exercise_key} frame {frame_idx}")
-                plt.close(fig_pred)  # Ensure the figure is closed
-
-                # Plot ground truth joints and save to folder
-                fig_gt = plot_3d_joints(gt_joints, exercise_key, frame_idx, save=True, return_figure=True)
-                gt_image = wandb.Image(fig_gt, caption=f"Ground Truth {exercise_key} frame {frame_idx}")
-                plt.close(fig_gt)  # Ensure the figure is closed
+                # Plot both predicted and ground truth joints and save to folder
+                fig_comparison = plot_pred_and_gt_joints(pred_joints, gt_joints, exercise_key, frame_idx, save=True, return_figure=True)
+                comparison_image = wandb.Image(fig_comparison, caption=f"Comparison {exercise_key} frame {frame_idx}")
+                plt.close(fig_comparison)  # Ensure the figure is closed
 
                 images.append({
-                    "Predicted": pred_image,
-                    "Ground Truth": gt_image,
+                    "Comparison": comparison_image,
                     "exercise_key": exercise_key,
                     "frame_idx": frame_idx
                 })
@@ -409,8 +410,7 @@ def test(model, loader, criterion):
             exercise_key = img_dict['exercise_key']
             frame_idx = img_dict['frame_idx']
             wandb.log({
-                f"Test/{exercise_key}/frame_{frame_idx}/Predicted": img_dict["Predicted"],
-                f"Test/{exercise_key}/frame_{frame_idx}/Ground Truth": img_dict["Ground Truth"]
+                f"Test/{exercise_key}/frame_{frame_idx}/Comparison": img_dict["Comparison"],
             })
 
     epoch_loss = running_loss / len(loader.dataset)
@@ -420,7 +420,9 @@ def test(model, loader, criterion):
 # Main Training Loop
 def main():
     """ SELECT MEGA DICT OR THE FILTERED ONE """
-    mega_dict_path = '/public.hpc/alessandro.folloni2/smpl_study/datasets/FIT3D/train/mega_dict_filtered.json'
+    # Use the original dataset
+    mega_dict_path = '/public.hpc/alessandro.folloni2/smpl_study/datasets/FIT3D/train/' \
+                     'mega_dict_filtered.json'
     mega_dict = load_data(mega_dict_path)
 
     # Prepare Dataset and DataLoader
@@ -429,6 +431,7 @@ def main():
     # Split the dataset into train, val, and test sets
     dataset_size = len(dataset)
     indices = list(range(dataset_size))
+    np.random.seed(42)
     np.random.shuffle(indices)
 
     train_split = int(np.floor(config['train_split'] * dataset_size))
@@ -496,6 +499,7 @@ def main():
     })
     print(f"Test Loss: {test_loss:.4f}, Test MPJPE: {test_mpjpe:.4f}")
 
+    # Save the model
     paths_dir = 'paths'
     os.makedirs(paths_dir, exist_ok=True)
     model_filename = f'{config["model_name"]}{len(config["cnn_extra_layers"])}_bs{config["batch_size"]}_ep{config["epochs"]}_joints_model.pth'
