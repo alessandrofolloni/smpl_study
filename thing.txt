@@ -1,9 +1,0 @@
-fatto training sul dict con tutti i frame
-
-bisogna farlo anche sul dataset filtered
-
-
-poi bisogna fare experiments
-
-
-infine imposta mega dict per joints3d to smplx, bisogna settare la seconda AI
