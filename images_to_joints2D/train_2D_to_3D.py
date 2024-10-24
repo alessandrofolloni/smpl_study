@@ -1,28 +1,29 @@
 import json
 import os
+
+import matplotlib
 import numpy as np
 import torch
 import torch.nn as nn
-from torch.utils.data import Dataset, DataLoader
 import wandb
-import matplotlib
-matplotlib.use('Agg')  # Use a non-interactive backend
+from torch.utils.data import Dataset, DataLoader
+
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 
 # Configuration for hyperparameters
 config = {
     'batch_size': 32,
     'learning_rate': 1e-4,
-    'epochs': 50,
+    'epochs': 100,
     'camera_ids': ['50591643', '58860488', '60457274', '65906101'],
     'num_joints_2d': 17,
     'num_joints_3d': 25,
     'train_split': 0.7,
     'val_split': 0.2,
     'test_split': 0.1,
-    'model_name': 'FCNN',  # 'FCNN', 'CNN', 'RNN'
-    'hidden_sizes': [2048, 1024, 512, 256, 128, 64],  # For FCNN
+    'model_name': 'CNN',  # 'FCNN', 'CNN', 'RNN'
+    'hidden_sizes': [512, 256, 128, 64, 32, 16, 8],  # For FCNN
     'dropout': 0.3,
     'cnn_extra_layers': [32, 64, 128, 256, 512, 1024],
 }
@@ -30,7 +31,7 @@ config = {
 wandb.init(
     project='2D_to_3D_Joints_filtered',
     entity='alessandrofolloni',
-    name=f"{config['model_name']}{len(config['cnn_extra_layers'])}_epochs{config['epochs']}_bs{config['batch_size']}_logs",
+    name=f"{config['model_name']}{len(config['cnn_extra_layers'])}_epochs{config['epochs']}_bs{config['batch_size']}_lr{config['learning_rate']}_logs",
 )
 wandb.config.update(config)
 
