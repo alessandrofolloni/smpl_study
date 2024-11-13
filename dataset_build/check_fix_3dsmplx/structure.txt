@@ -1,0 +1,14 @@
+{
+    "exercise1_s1": {
+        "frame1": {
+            "joints3d": [...],
+            "gt": {
+                "transl": [...],
+                "global_orient": [...],
+                ...
+            }
+        },
+        ...
+    },
+    ...
+}

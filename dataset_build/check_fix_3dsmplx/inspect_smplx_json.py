@@ -1,36 +1,59 @@
 import os
 import json
 
-def inspect_smplx_keys(dataset_dir):
+def get_shape(data):
+    if isinstance(data, list):
+        if len(data) == 0:
+            return (0,)
+        else:
+            # Get the shape of the first element
+            first_shape = get_shape(data[0])
+            # Ensure all elements have the same shape
+            for item in data:
+                if get_shape(item) != first_shape:
+                    return (len(data),)
+            return (len(data),) + first_shape
+    else:
+        return ()
+
+def inspect_smplx_keys(file_path):
     """
-    Inspects the keys of the SMPLX JSON files in the dataset.
+    Inspects the keys of a single SMPLX JSON file.
 
     Args:
-        dataset_dir (str): Path to the main Dataset directory.
+        file_path (str): Path to the SMPLX JSON file.
     """
-    # List all subjects in the dataset directory
-    subjects = [d for d in os.listdir(dataset_dir) if os.path.isdir(os.path.join(dataset_dir, d))]
+    # Check if the file exists
+    if not os.path.exists(file_path):
+        print(f"Error: The file '{file_path}' does not exist.")
+        return
 
-    for subject in subjects:
-        subject_path = os.path.join(dataset_dir, subject)
-        smplx_folder = os.path.join(subject_path, 'smplx')
+    # Check if the file has a .json extension
+    if not file_path.lower().endswith('.json'):
+        print(f"Error: The file '{file_path}' is not a JSON file.")
+        return
 
-        if not os.path.exists(smplx_folder):
-            print(f"Warning: {smplx_folder} does not exist. Skipping subject {subject}.")
-            continue
+    # Attempt to open and load the JSON file
+    try:
+        with open(file_path, 'r') as f:
+            data = json.load(f)
+    except json.JSONDecodeError as e:
+        print(f"Error: Failed to decode JSON file '{file_path}'.\n{e}")
+        return
+    except Exception as e:
+        print(f"Error: An unexpected error occurred while reading '{file_path}'.\n{e}")
+        return
 
-        # List all exercises (JSON files) for the subject
-        exercises = [f for f in os.listdir(smplx_folder) if f.endswith('.json')]
-
-        for smplx_file in exercises:
-            smplx_file_path = os.path.join(smplx_folder, smplx_file)
-            with open(smplx_file_path, 'r') as f:
-                data = json.load(f)
-            print(f"SMPLX file: {smplx_file_path}")
-            print(f"Keys: {list(data.keys())}")
-            print("-" * 40)
+    # Print the keys and their dimensions
+    print(f"SMPLX file: {file_path}")
+    print("Keys and Dimensions:")
+    for key in data.keys():
+        shape = get_shape(data[key])
+        shape_str = ' x '.join(map(str, shape)) if shape else 'Scalar'
+        print(f" - {key}: {shape_str}")
+    print("-" * 40)
 
 if __name__ == "__main__":
     dataset_directory = '/public.hpc/alessandro.folloni2/smpl_study/datasets/FIT3D/train/s10' \
-                        '/smplx/warmup_7.json'  # Adjust to your actual path
+                        '/smplx/warmup_7.json'
     inspect_smplx_keys(dataset_directory)

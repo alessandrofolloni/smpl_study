@@ -3,6 +3,8 @@
 /datasets/
 /smplx_usage/files
 /pretrained_yolos
+/runs
+/paths
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

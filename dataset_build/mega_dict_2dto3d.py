@@ -224,17 +224,15 @@ def main():
     camera_ids = ['50591643', '58860488', '60457274', '65906101']
     threshold = 0.3  # Adjust this threshold based on experimentation
 
-    # Create the mega_dict with frame filtering
     mega_dictionary = create_mega_dict(
         dataset_dir=dataset_directory,
         camera_ids=camera_ids,
         threshold=threshold
     )
 
-    # Define the output path
+    # output path
     output_json_path = os.path.join(dataset_directory, 'mega_dict_filtered.json')  # Adjust as needed
 
-    # Save the mega_dict as JSON
     try:
         with open(output_json_path, 'w') as json_file:
             json.dump(mega_dictionary, json_file, indent=4)
