@@ -24,7 +24,7 @@ def process_single_video(video_path, output_dir):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     # Initialize the YOLOv8 pose model on the device
-    model = YOLO('yolov8n-pose.pt')
+    model = YOLO('yolov8s-pose.pt')
     model.to(device)
 
     print(f"Processing video: {video_path}")

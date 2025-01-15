@@ -1,5 +1,4 @@
 import cv2
-import sys
 import os
 
 def get_video_frame_count(video_path):

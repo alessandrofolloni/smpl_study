@@ -1,10 +1,17 @@
 import os
 import json
 import numpy as np
+from pathlib import Path
 
 def get_shape(data):
     """
     Recursively determines the shape of nested lists.
+
+    Parameters:
+    - data (list or other): The data to determine the shape of.
+
+    Returns:
+    - tuple: The shape of the data.
     """
     if isinstance(data, list):
         if not data:  # Empty list
@@ -17,6 +24,13 @@ def get_shape(data):
 def validate_smplx_structure(smplx_data, expected_shapes):
     """
     Validates the structure of SMPLX data against expected shapes.
+
+    Parameters:
+    - smplx_data (dict): The SMPLX data to validate.
+    - expected_shapes (dict): A dictionary mapping SMPLX keys to their expected shapes.
+
+    Returns:
+    - list: A list of error messages. Empty if no errors.
     """
     errors = []
     for key, expected_shape in expected_shapes.items():
@@ -40,6 +54,13 @@ def validate_smplx_structure(smplx_data, expected_shapes):
 def load_joints3d(file_path):
     """
     Loads and structures 3D joint data from a JSON file.
+
+    Parameters:
+    - file_path (str or Path): Path to the JSON file containing 3D joint data.
+
+    Returns:
+    - dict: Structured 3D joint data {frame_key: [[x, y, z], ...]}
+    - int: Number of frames
     """
     try:
         with open(file_path, 'r') as f:
@@ -55,7 +76,7 @@ def load_joints3d(file_path):
         print(f"Error: 'joints3d_25' key not found in {file_path}. Skipping file.")
         return {}, 0
 
-    joints3d_array = np.array(data["joints3d_25"])  # Shape: (frames, 25, 3)
+    joints3d_array = np.array(data["joints3d_25"])  # Expected shape: (frames, 25, 3)
 
     if joints3d_array.ndim != 3 or joints3d_array.shape[1:] != (25, 3):
         print(f"Error: Unexpected shape for joints3d in {file_path}: {joints3d_array.shape}. Skipping file.")
@@ -72,6 +93,13 @@ def load_joints3d(file_path):
 def compute_frame_difference_3d(current_joints3d, reference_joints3d):
     """
     Computes the total Euclidean distance between current and reference frames over all 3D joints.
+
+    Parameters:
+    - current_joints3d (list): Current frame's 3D joints [[x, y, z], ...]
+    - reference_joints3d (list): Reference frame's 3D joints [[x, y, z], ...]
+
+    Returns:
+    - float: Total Euclidean distance
     """
     current_joints = np.array(current_joints3d)  # Shape: (25, 3)
     reference_joints = np.array(reference_joints3d)  # Shape: (25, 3)
@@ -79,10 +107,38 @@ def compute_frame_difference_3d(current_joints3d, reference_joints3d):
     total_diff = np.sum(diff)
     return total_diff
 
-def create_mega_dict(dataset_dir, threshold):
+def load_smplx(file_path):
     """
-    Creates a mega_dict.json based on aligned frames where 3D data and SMPLX data are available.
-    Excludes files with errors and handles exceptions gracefully.
+    Loads SMPLX data from a JSON file.
+
+    Parameters:
+    - file_path (str or Path): Path to the SMPLX JSON file.
+
+    Returns:
+    - dict: SMPLX data.
+    """
+    try:
+        with open(file_path, 'r') as f:
+            smplx_data = json.load(f)
+        return smplx_data
+    except json.JSONDecodeError as e:
+        print(f"Error loading SMPLX file '{file_path}': {e}")
+        return {}
+    except Exception as e:
+        print(f"Unexpected error loading SMPLX file '{file_path}': {e}")
+        return {}
+
+def create_mega_dict(dataset_dir, threshold=0.3):
+    """
+    Creates a mega_dict.json based on aligned frames where 3D joint data and SMPLX data are available.
+    Filters frames based on the specified threshold difference.
+
+    Parameters:
+    - dataset_dir (str or Path): Path to the dataset directory.
+    - threshold (float): Threshold for frame difference to include the frame.
+
+    Returns:
+    - dict: The constructed mega_dict.
     """
     mega_dict = {}
 
@@ -100,33 +156,40 @@ def create_mega_dict(dataset_dir, threshold):
         'expression': (10,)
     }
 
+    dataset_path = Path(dataset_dir)
+
+    if not dataset_path.exists():
+        print(f"Dataset directory '{dataset_dir}' does not exist.")
+        return mega_dict
+
     # List all subjects in the dataset directory
-    subjects = [d for d in os.listdir(dataset_dir) if os.path.isdir(os.path.join(dataset_dir, d))]
+    subjects = [d for d in dataset_path.iterdir() if d.is_dir()]
+    subjects.sort()
 
     for subject in subjects:
-        subject_path = os.path.join(dataset_dir, subject)
-        joints3d_folder = os.path.join(subject_path, 'joints3d_25')
-        smplx_folder = os.path.join(subject_path, 'smplx')
+        subject_path = subject
+        joints3d_folder = subject_path / 'joints3d_25'
+        smplx_folder = subject_path / 'smplx'
 
         # Check if necessary folders exist
-        if not os.path.exists(joints3d_folder):
-            print(f"Warning: '{joints3d_folder}' does not exist. Skipping subject '{subject}'.")
+        if not joints3d_folder.exists():
+            print(f"Warning: '{joints3d_folder}' does not exist. Skipping subject '{subject.name}'.")
             continue
-        if not os.path.exists(smplx_folder):
-            print(f"Warning: '{smplx_folder}' does not exist. Skipping subject '{subject}'.")
+        if not smplx_folder.exists():
+            print(f"Warning: '{smplx_folder}' does not exist. Skipping subject '{subject.name}'.")
             continue
 
         # List all joints3d JSON files for the subject
-        exercises = [f for f in os.listdir(joints3d_folder) if f.endswith('.json')]
+        exercises = [f for f in joints3d_folder.iterdir() if f.is_file() and f.suffix == '.json']
 
         for exercise_file in exercises:
-            exercise_name = os.path.splitext(exercise_file)[0]
-            exercise_key = f"{subject}_{exercise_name}"
-            joints3d_file_path = os.path.join(joints3d_folder, exercise_file)
-            smplx_file_path = os.path.join(smplx_folder, f"{exercise_name}.json")
+            exercise_name = exercise_file.stem
+            exercise_key = f"{subject.name}_{exercise_name}"
+            joints3d_file_path = exercise_file
+            smplx_file_path = smplx_folder / f"{exercise_name}.json"
 
             # Check if corresponding SMPLX file exists
-            if not os.path.exists(smplx_file_path):
+            if not smplx_file_path.exists():
                 print(f"Warning: SMPLX file '{smplx_file_path}' does not exist. Skipping exercise '{exercise_key}'.")
                 continue
 
@@ -137,14 +200,9 @@ def create_mega_dict(dataset_dir, threshold):
                 continue
 
             # Load SMPLX data
-            try:
-                with open(smplx_file_path, 'r') as f:
-                    smplx_data = json.load(f)
-            except json.JSONDecodeError as e:
-                print(f"Skipping {exercise_key} due to JSONDecodeError in SMPLX file: {e}")
-                continue
-            except Exception as e:
-                print(f"Skipping {exercise_key} due to unexpected error when loading SMPLX file: {e}")
+            smplx_data = load_smplx(smplx_file_path)
+            if not smplx_data:
+                print(f"Skipping {exercise_key} due to invalid SMPLX data.")
                 continue
 
             # Validate SMPLX data structure
@@ -185,7 +243,6 @@ def create_mega_dict(dataset_dir, threshold):
                         include_frame = True
 
                 if include_frame:
-                    # Collect SMPLX parameters for this frame
                     frame_index = int(frame_key.split('_')[1])
 
                     # Extract SMPLX parameters for this frame
@@ -199,7 +256,8 @@ def create_mega_dict(dataset_dir, threshold):
                         'gt': smplx_frame_data
                     }
 
-                    reference_joints3d = current_joints3d  # Update reference frame
+                    # Update reference frame
+                    reference_joints3d = current_joints3d
 
             # Check if any frames are included
             if not filtered_frames:
@@ -209,32 +267,30 @@ def create_mega_dict(dataset_dir, threshold):
             # Add to mega_dict
             mega_dict[exercise_key] = filtered_frames
 
-            # Optional: Analyze differences and print statistics
-            if all_differences:
-                mean_diff = np.mean(all_differences)
-                std_diff = np.std(all_differences)
-                print(f"Statistics for {exercise_key}: Mean difference = {mean_diff:.4f}, Std Dev = {std_diff:.4f}")
-
     return mega_dict
 
 def main():
+    """
+    Main function to execute the mega_dict creation process.
+    """
     dataset_directory = '/public.hpc/alessandro.folloni2/smpl_study/datasets/FIT3D/train/'  # Adjust to your actual path
     threshold = 0.3  # Adjust this threshold based on experimentation
 
+    print("Starting mega_dict creation...")
     mega_dictionary = create_mega_dict(
         dataset_dir=dataset_directory,
         threshold=threshold
     )
 
-    # Output path
-    output_json_path = os.path.join(dataset_directory, 'mega_dict_3dSMPLX.json')  # Adjust as needed
+    # Define output path
+    output_json_path = Path(dataset_directory) / 'mega_dict_3dSMPLX_final.json'  # Adjust as needed
 
     try:
         with open(output_json_path, 'w') as json_file:
             json.dump(mega_dictionary, json_file, indent=4)
-        print(f"mega_dict_filtered.json has been saved to {output_json_path}")
+        print(f"mega_dict_3dSMPLX.json has been saved to {output_json_path}")
     except Exception as e:
-        print(f"Error saving mega_dict_filtered.json: {e}")
+        print(f"Error saving mega_dict_3dSMPLX.json: {e}")
 
 if __name__ == "__main__":
     main()

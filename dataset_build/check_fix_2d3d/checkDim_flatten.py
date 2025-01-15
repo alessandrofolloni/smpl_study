@@ -223,8 +223,7 @@ if __name__ == "__main__":
                       f"smpl_study/datasets/FIT3D/train/s05/joints2d/{cam}"
         main(json_folder)'''
 
-    subject_joints2d_folder = "/public.hpc/alessandro.folloni2/smpl_study/" \
-                              "datasets/FIT3D/train/s11/joints2d/"
+    subject_joints2d_folder = "/public.hpc/alessandro.folloni2/smpl_study/demo/output/result_20241115_144337/keypoints/"
 
     # Call the processing function
     process_subject_joints2d(subject_joints2d_folder)

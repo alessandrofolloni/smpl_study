@@ -1,0 +1,35 @@
+1. Mean Absolute Error (MAE)
+
+	•	Definizione: Il MAE è la media degli errori assoluti tra le predizioni del modello e i valori reali.
+	    Misura quanto, in media, le predizioni del modello si discostano dai valori reali.
+
+	•	Motivazione per l’uso:
+	•	Interpretabilità: Il MAE è facilmente interpretabile poiché esprime l’errore medio in unità delle variabili target.
+	•	Robustezza agli outlier: Essendo basato sull’errore assoluto, il MAE è meno sensibile agli outlier rispetto all’MSE, il che può essere vantaggioso se il dataset contiene valori anomali.
+
+2. Mean Squared Error (MSE)
+
+	•	Definizione: L’MSE è la media dei quadrati delle differenze tra le predizioni e i valori reali.
+	    Penalizza maggiormente gli errori più grandi.
+
+	•	Motivazione per l’uso:
+	•	Sensibilità agli errori maggiori: L’MSE penalizza gli errori più grandi in modo quadratico, aiutando a ridurre grandi deviazioni nelle predizioni.
+	•	Proprietà matematiche: L’MSE è differenziabile e convesso, il che lo rende adatto come funzione di perdita per l’ottimizzazione durante l’addestramento del modello.
+
+3. Root Mean Squared Error (RMSE)
+
+	•	Definizione: L’RMSE è la radice quadrata dell’MSE.
+	    Riporta l’errore alla stessa unità delle variabili target.
+
+	•	Motivazione per l’uso:
+	•	Interpretabilità migliorata: Poiché l’RMSE è nella stessa unità delle variabili target, è più facile da interpretare rispetto all’MSE.
+	•	Sensibilità agli errori maggiori: Mantiene la proprietà dell’MSE di penalizzare maggiormente gli errori più grandi.
+
+4. MAE per Gruppo (Group-wise MAE)
+
+	•	Definizione: Calcola il MAE separatamente per diversi gruppi di parametri SMPL-X, come traslazione, orientamento globale, posa del corpo, ecc.
+	•	Motivazione per l’uso:
+	•	Analisi dettagliata: Permette di identificare specifici gruppi di parametri in cui il modello performa meglio o peggio.
+	•	Diagnostica: Aiuta a comprendere se il modello ha difficoltà con certi aspetti del compito, consentendo interventi mirati per migliorare le prestazioni.
+	•	Ottimizzazione focalizzata: Fornisce indicazioni su quali componenti del modello o del dataset potrebbero richiedere ulteriore attenzione.
+

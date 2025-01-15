@@ -97,7 +97,7 @@ def check_mega_dict(mega_dict_path, expected_cameras, expected_joints2d=17, expe
 
 def main():
     mega_dict_path = '/public.hpc/alessandro.folloni2/smpl_study' \
-                     '/datasets/FIT3D/train//mega_dict.json'  # Update this path accordingly
+                     '/datasets/FIT3D/train//mega_dict_filtered.json'  # Update this path accordingly
     expected_cameras = ['50591643', '58860488', '60457274', '65906101']
     expected_joints2d = 17
     expected_joints3d = 25
