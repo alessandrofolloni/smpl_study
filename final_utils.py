@@ -197,9 +197,13 @@ def axis_angle_to_rotation_matrices(axis_angles):
 
 
 def save_smplx_json(smplx_data, output_path):
+    # Convert the numpy array to a list for JSON serialization.
+    smplx_list = smplx_data.tolist()
     with open(output_path, 'w') as f:
-        json.dump(smplx_data, f, indent=4)
+        json.dump(smplx_list, f, indent=4)
     print(f"Saved SMPLX JSON to {output_path}")
+
+
 
 
 def load_smplx_json(json_path):

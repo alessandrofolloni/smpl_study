@@ -3,5 +3,5 @@
   <component name="Black">
     <option name="sdkName" value="Python 3.9 (yolo_keypoints)" />
   </component>
-  <component name="ProjectRootManager" version="2" project-jdk-name="Remote  unknown interpreter (sftp://alessandro.folloni2@slurm.cs.unibo.it:22/public.hpc/alessandro.folloni2/run.sh)" project-jdk-type="Python SDK" />
+  <component name="ProjectRootManager" version="2" project-jdk-name="Remote  unknown interpreter (sftp://alessandro.folloni2@giano.cs.unibo.it:22/public.hpc/alessandro.folloni2/smpl_study/run.sh)" project-jdk-type="Python SDK" />
 </project>

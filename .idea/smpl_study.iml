@@ -9,7 +9,7 @@
       <excludeFolder url="file://$MODULE_DIR$/smplx_usage/files/smplx" />
       <excludeFolder url="file://$MODULE_DIR$/smplx_usage/files/video" />
     </content>
-    <orderEntry type="jdk" jdkName="Remote  unknown interpreter (sftp://alessandro.folloni2@slurm.cs.unibo.it:22/public.hpc/alessandro.folloni2/run.sh)" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="Remote  unknown interpreter (sftp://alessandro.folloni2@giano.cs.unibo.it:22/public.hpc/alessandro.folloni2/smpl_study/run.sh)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
 </module>
